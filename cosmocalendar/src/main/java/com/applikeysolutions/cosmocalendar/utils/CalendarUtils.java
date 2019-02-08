@@ -44,7 +44,7 @@ public final class CalendarUtils {
         end.setTime(DateUtils.getLastDayOfWeek(DateUtils.getLastDayOfMonth(date)));
 
         //Create week day titles
-        if (settingsManager.isShowDaysOfWeek()) {
+        if (settingsManager.appearanceModel.getShowDaysOfWeek()) {
             days.addAll(createDaysOfWeek(firstDisplayedDay));
         }
 

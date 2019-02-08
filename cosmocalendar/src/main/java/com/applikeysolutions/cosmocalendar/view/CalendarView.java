@@ -27,20 +27,20 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.applikeysolutions.cosmocalendar.selection.NoneSelectionManager;
 import com.applikeysolutions.cosmocalendar.FetchMonthsAsyncTask;
 import com.applikeysolutions.cosmocalendar.adapter.MonthAdapter;
 import com.applikeysolutions.cosmocalendar.listeners.OnMonthChangeListener;
-import com.applikeysolutions.cosmocalendar.selection.selectionbar.SelectionBarItem;
-import com.applikeysolutions.cosmocalendar.settings.SettingsManager;
 import com.applikeysolutions.cosmocalendar.model.Day;
 import com.applikeysolutions.cosmocalendar.model.Month;
 import com.applikeysolutions.cosmocalendar.selection.BaseSelectionManager;
 import com.applikeysolutions.cosmocalendar.selection.MultipleSelectionManager;
+import com.applikeysolutions.cosmocalendar.selection.NoneSelectionManager;
 import com.applikeysolutions.cosmocalendar.selection.OnDaySelectedListener;
 import com.applikeysolutions.cosmocalendar.selection.RangeSelectionManager;
 import com.applikeysolutions.cosmocalendar.selection.SingleSelectionManager;
 import com.applikeysolutions.cosmocalendar.selection.selectionbar.MultipleSelectionBarAdapter;
+import com.applikeysolutions.cosmocalendar.selection.selectionbar.SelectionBarItem;
+import com.applikeysolutions.cosmocalendar.settings.SettingsManager;
 import com.applikeysolutions.cosmocalendar.settings.appearance.AppearanceInterface;
 import com.applikeysolutions.cosmocalendar.settings.date.DateInterface;
 import com.applikeysolutions.cosmocalendar.settings.lists.CalendarListsInterface;
@@ -67,6 +67,7 @@ import java.util.TreeSet;
 public class CalendarView extends RelativeLayout implements OnDaySelectedListener,
         AppearanceInterface, DateInterface, CalendarListsInterface, SelectionInterface, MultipleSelectionBarAdapter.ListItemClickListener, GravitySnapHelper.SnapListener {
 
+    public String daysOfWeekFormat = "EEE";
     private List<Day> selectedDays;
 
     //Recycler
@@ -84,8 +85,8 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
     //Views
     private LinearLayout llDaysOfWeekTitles;
     private FrameLayout flNavigationButtons;
-    private ImageView ivPrevious;
-    private ImageView ivNext;
+    public ImageView ivPrevious;
+    public ImageView ivNext;
 
     //Helpers
     private SettingsManager settingsManager;
@@ -125,7 +126,7 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
 
-        if(asyncTask != null && !asyncTask.isCancelled()){
+        if (asyncTask != null && !asyncTask.isCancelled()) {
             asyncTask.cancel(false);
         }
     }
@@ -164,7 +165,7 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
         int selectedDayBackgroundStartColor = typedArray.getColor(R.styleable.CalendarView_selectedDayBackgroundStartColor, ContextCompat.getColor(getContext(), R.color.default_selected_day_background_start_color));
         int selectedDayBackgroundEndColor = typedArray.getColor(R.styleable.CalendarView_selectedDayBackgroundEndColor, ContextCompat.getColor(getContext(), R.color.default_selected_day_background_end_color));
         int currentDayTextColor = typedArray.getColor(R.styleable.CalendarView_currentDayTextColor, ContextCompat.getColor(getContext(), R.color.default_day_text_color));
-        int currentDayIconRes = typedArray.getResourceId(R.styleable.CalendarView_currentDayIconRes, R.drawable.ic_triangle_green);
+        //int currentDayIconRes = typedArray.getResourceId(R.styleable.CalendarView_currentDayIconRes, R.drawable.ic_triangle_green);
         int currentDaySelectedIconRes = typedArray.getResourceId(R.styleable.CalendarView_currentDaySelectedIconRes, R.drawable.ic_triangle_white);
         int connectedDayIconRes = typedArray.getResourceId(R.styleable.CalendarView_connectedDayIconRes, 0);
         int connectedDaySelectedIconRes = typedArray.getResourceId(R.styleable.CalendarView_connectedDaySelectedIconRes, 0);
@@ -175,31 +176,31 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
         int nextMonthIconRes = typedArray.getResourceId(R.styleable.CalendarView_nextMonthIconRes, R.drawable.ic_chevron_right_gray);
 
         setBackgroundColor(calendarBackgroundColor);
-        settingsManager.setCalendarBackgroundColor(calendarBackgroundColor);
-        settingsManager.setMonthTextColor(monthTextColor);
-        settingsManager.setOtherDayTextColor(otherDayTextColor);
-        settingsManager.setDayTextColor(dayTextColor);
-        settingsManager.setWeekendDayTextColor(weekendDayTextColor);
-        settingsManager.setWeekDayTitleTextColor(weekDayTitleTextColor);
-        settingsManager.setSelectedDayTextColor(selectedDayTextColor);
-        settingsManager.setSelectedDayBackgroundColor(selectedDayBackgroundColor);
-        settingsManager.setSelectedDayBackgroundStartColor(selectedDayBackgroundStartColor);
-        settingsManager.setSelectedDayBackgroundEndColor(selectedDayBackgroundEndColor);
-        settingsManager.setConnectedDayIconRes(connectedDayIconRes);
-        settingsManager.setConnectedDaySelectedIconRes(connectedDaySelectedIconRes);
-        settingsManager.setConnectedDayIconPosition(connectedDayIconPosition);
-        settingsManager.setDisabledDayTextColor(disabledDayTextColor);
-        settingsManager.setSelectionBarMonthTextColor(selectionBarMonthTextColor);
-        settingsManager.setCurrentDayTextColor(currentDayTextColor);
-        settingsManager.setCurrentDayIconRes(currentDayIconRes);
-        settingsManager.setCurrentDaySelectedIconRes(currentDaySelectedIconRes);
-        settingsManager.setCalendarOrientation(orientation);
+        settingsManager.appearanceModel.setCalendarBackgroundColor(calendarBackgroundColor);
+        settingsManager.appearanceModel.setMonthTextColor(monthTextColor);
+        settingsManager.appearanceModel.setOtherDayTextColor(otherDayTextColor);
+        settingsManager.appearanceModel.setDayTextColor(dayTextColor);
+        settingsManager.appearanceModel.setWeekendDayTextColor(weekendDayTextColor);
+        settingsManager.appearanceModel.setWeekDayTitleTextColor(weekDayTitleTextColor);
+        settingsManager.appearanceModel.setSelectedDayTextColor(selectedDayTextColor);
+        settingsManager.appearanceModel.setSelectedDayBackgroundColor(selectedDayBackgroundColor);
+        settingsManager.appearanceModel.setSelectedDayBackgroundStartColor(selectedDayBackgroundStartColor);
+        settingsManager.appearanceModel.setSelectedDayBackgroundEndColor(selectedDayBackgroundEndColor);
+        settingsManager.appearanceModel.setConnectedDayIconRes(connectedDayIconRes);
+        settingsManager.appearanceModel.setConnectedDaySelectedIconRes(connectedDaySelectedIconRes);
+        settingsManager.appearanceModel.setConnectedDayIconPosition(connectedDayIconPosition);
+        settingsManager.appearanceModel.setDisabledDayTextColor(disabledDayTextColor);
+        settingsManager.appearanceModel.setSelectionBarMonthTextColor(selectionBarMonthTextColor);
+        settingsManager.appearanceModel.setCurrentDayTextColor(currentDayTextColor);
+        //settingsManager.setCurrentDayIconRes(currentDayIconRes);
+        settingsManager.appearanceModel.setCurrentDaySelectedIconRes(currentDaySelectedIconRes);
+        settingsManager.appearanceModel.setCalendarOrientation(orientation);
         settingsManager.setFirstDayOfWeek(firstDayOfWeek);
-        settingsManager.setShowDaysOfWeek(showDaysOfWeek);
-        settingsManager.setShowDaysOfWeekTitle(showDaysOfWeekTitle);
+        settingsManager.appearanceModel.setShowDaysOfWeek(showDaysOfWeek);
+        settingsManager.appearanceModel.setShowDaysOfWeekTitle(showDaysOfWeekTitle);
         settingsManager.setSelectionType(selectionType);
-        settingsManager.setPreviousMonthIconRes(previousMonthIconRes);
-        settingsManager.setNextMonthIconRes(nextMonthIconRes);
+        settingsManager.appearanceModel.setPreviousMonthIconRes(previousMonthIconRes);
+        settingsManager.appearanceModel.setNextMonthIconRes(nextMonthIconRes);
     }
 
     private void handleWeekendDaysAttributes(TypedArray typedArray) {
@@ -237,7 +238,7 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
         createRecyclerView();
         createBottomSelectionBar();
 
-        if (settingsManager.getCalendarOrientation() == LinearLayoutManager.HORIZONTAL) {
+        if (settingsManager.appearanceModel.getCalendarOrientation() == LinearLayoutManager.HORIZONTAL) {
             createNavigationButtons();
         }
     }
@@ -248,13 +249,13 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
      * VERTICAL - displaying above whole calendar
      */
     private void setDaysOfWeekTitles() {
-        settingsManager.setShowDaysOfWeekTitle(settingsManager.getCalendarOrientation() != LinearLayoutManager.HORIZONTAL);
-        settingsManager.setShowDaysOfWeek(settingsManager.getCalendarOrientation() == LinearLayoutManager.HORIZONTAL);
+        settingsManager.appearanceModel.setShowDaysOfWeekTitle(settingsManager.appearanceModel.getCalendarOrientation() != LinearLayoutManager.HORIZONTAL);
+        settingsManager.appearanceModel.setShowDaysOfWeek(settingsManager.appearanceModel.getCalendarOrientation() == LinearLayoutManager.HORIZONTAL);
 
         if (llDaysOfWeekTitles == null) {
             createDaysOfWeekTitle();
         }
-        if (settingsManager.isShowDaysOfWeekTitle()) {
+        if (settingsManager.appearanceModel.getShowDaysOfWeekTitle()) {
             showDaysOfWeekTitle();
         } else {
             hideDaysOfWeekTitle();
@@ -305,7 +306,7 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
         params.addRule(RelativeLayout.BELOW, rvMonths.getId());
         flBottomSelectionBar.setLayoutParams(params);
         flBottomSelectionBar.setBackgroundResource(R.drawable.border_top_bottom);
-        flBottomSelectionBar.setVisibility(settingsManager.getCalendarOrientation() == OrientationHelper.HORIZONTAL ? View.VISIBLE : View.GONE);
+        flBottomSelectionBar.setVisibility(settingsManager.appearanceModel.getCalendarOrientation() == OrientationHelper.HORIZONTAL ? View.VISIBLE : View.GONE);
         addView(flBottomSelectionBar);
 
         createMultipleSelectionBarRecycler();
@@ -390,7 +391,7 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
         params.addRule(RelativeLayout.BELOW, llDaysOfWeekTitles.getId());
         rvMonths.setLayoutParams(params);
 
-        rvMonths.setLayoutManager(new GridLayoutManager(getContext(), 1, settingsManager.getCalendarOrientation(), false));
+        rvMonths.setLayoutManager(new GridLayoutManager(getContext(), 1, settingsManager.appearanceModel.getCalendarOrientation(), false));
         monthAdapter = createAdapter();
 
         changeSnapHelper();
@@ -418,7 +419,7 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
 
     private void setPreviousNavigationButton() {
         ivPrevious = (ImageView) flNavigationButtons.findViewById(R.id.iv_previous_month);
-        ivPrevious.setImageResource(settingsManager.getPreviousMonthIconRes());
+        ivPrevious.setImageResource(settingsManager.appearanceModel.getPreviousMonthIconRes());
         ivPrevious.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -429,7 +430,7 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
 
     private void setNextNavigationButton() {
         ivNext = (ImageView) flNavigationButtons.findViewById(R.id.iv_next_month);
-        ivNext.setImageResource(settingsManager.getNextMonthIconRes());
+        ivNext.setImageResource(settingsManager.appearanceModel.getNextMonthIconRes());
         ivNext.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -496,8 +497,8 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
         }
     }
 
-    private void loadAsyncMonths(final boolean future){
-        if(asyncTask != null && (asyncTask.getStatus() == AsyncTask.Status.PENDING || asyncTask.getStatus() == AsyncTask.Status.RUNNING))
+    private void loadAsyncMonths(final boolean future) {
+        if (asyncTask != null && (asyncTask.getStatus() == AsyncTask.Status.PENDING || asyncTask.getStatus() == AsyncTask.Status.RUNNING))
             return;
 
         asyncTask = new FetchMonthsAsyncTask();
@@ -574,9 +575,9 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
      */
     public List<Day> getSelectedDays() {
         List<Day> selectedDays = new ArrayList<>();
-        for(Iterator<Month> monthIterator = monthAdapter.getData().iterator(); monthIterator.hasNext();) {
+        for (Iterator<Month> monthIterator = monthAdapter.getData().iterator(); monthIterator.hasNext(); ) {
             Month month = monthIterator.next();
-            for(Iterator<Day> dayIterator = month.getDaysWithoutTitlesAndOnlyCurrent().iterator(); dayIterator.hasNext();) {
+            for (Iterator<Day> dayIterator = month.getDaysWithoutTitlesAndOnlyCurrent().iterator(); dayIterator.hasNext(); ) {
                 Day day = dayIterator.next();
                 if (selectionManager.isDaySelected(day)) {
                     selectedDays.add(day);
@@ -745,152 +746,152 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
 
     @Override
     public int getCalendarBackgroundColor() {
-        return settingsManager.getCalendarBackgroundColor();
+        return settingsManager.appearanceModel.getCalendarBackgroundColor();
     }
 
     @Override
     public int getMonthTextColor() {
-        return settingsManager.getMonthTextColor();
+        return settingsManager.appearanceModel.getMonthTextColor();
     }
 
     @Override
     public int getOtherDayTextColor() {
-        return settingsManager.getOtherDayTextColor();
+        return settingsManager.appearanceModel.getOtherDayTextColor();
     }
 
     @Override
     public int getDayTextColor() {
-        return settingsManager.getDayTextColor();
+        return settingsManager.appearanceModel.getDayTextColor();
     }
 
     @Override
     public int getWeekendDayTextColor() {
-        return settingsManager.getWeekendDayTextColor();
+        return settingsManager.appearanceModel.getWeekendDayTextColor();
     }
 
     @Override
     public int getWeekDayTitleTextColor() {
-        return settingsManager.getWeekDayTitleTextColor();
+        return settingsManager.appearanceModel.getWeekDayTitleTextColor();
     }
 
     @Override
     public int getSelectedDayTextColor() {
-        return settingsManager.getSelectedDayTextColor();
+        return settingsManager.appearanceModel.getSelectedDayTextColor();
     }
 
     @Override
     public int getSelectedDayBackgroundColor() {
-        return settingsManager.getSelectedDayBackgroundColor();
+        return settingsManager.appearanceModel.getSelectedDayBackgroundColor();
     }
 
     @Override
     public int getSelectedDayBackgroundStartColor() {
-        return settingsManager.getSelectedDayBackgroundStartColor();
+        return settingsManager.appearanceModel.getSelectedDayBackgroundStartColor();
     }
 
     @Override
     public int getSelectedDayBackgroundEndColor() {
-        return settingsManager.getSelectedDayBackgroundEndColor();
+        return settingsManager.appearanceModel.getSelectedDayBackgroundEndColor();
     }
 
     @Override
     public int getCurrentDayTextColor() {
-        return settingsManager.getCurrentDayTextColor();
+        return settingsManager.appearanceModel.getCurrentDayTextColor();
     }
 
     @Override
     public int getCurrentDayIconRes() {
-        return settingsManager.getCurrentDayIconRes();
+        return settingsManager.appearanceModel.getCurrentDayIconRes();
     }
 
     @Override
     public int getCurrentDaySelectedIconRes() {
-        return settingsManager.getCurrentDaySelectedIconRes();
+        return settingsManager.appearanceModel.getCurrentDaySelectedIconRes();
     }
 
     @Override
     public int getCalendarOrientation() {
-        return settingsManager.getCalendarOrientation();
+        return settingsManager.appearanceModel.getCalendarOrientation();
     }
 
     @Override
     public int getConnectedDayIconRes() {
-        return settingsManager.getConnectedDayIconRes();
+        return settingsManager.appearanceModel.getConnectedDayIconRes();
     }
 
     @Override
     public int getConnectedDaySelectedIconRes() {
-        return settingsManager.getConnectedDaySelectedIconRes();
+        return settingsManager.appearanceModel.getConnectedDaySelectedIconRes();
     }
 
     @Override
     public int getConnectedDayIconPosition() {
-        return settingsManager.getConnectedDayIconPosition();
+        return settingsManager.appearanceModel.getConnectedDayIconPosition();
     }
 
     @Override
     public int getDisabledDayTextColor() {
-        return settingsManager.getDisabledDayTextColor();
+        return settingsManager.appearanceModel.getDisabledDayTextColor();
     }
 
     @Override
     public int getSelectionBarMonthTextColor() {
-        return settingsManager.getSelectionBarMonthTextColor();
+        return settingsManager.appearanceModel.getSelectionBarMonthTextColor();
     }
 
     @Override
     public int getPreviousMonthIconRes() {
-        return settingsManager.getPreviousMonthIconRes();
+        return settingsManager.appearanceModel.getPreviousMonthIconRes();
     }
 
     @Override
     public int getNextMonthIconRes() {
-        return settingsManager.getNextMonthIconRes();
+        return settingsManager.appearanceModel.getNextMonthIconRes();
     }
 
     @Override
     public boolean isShowDaysOfWeek() {
-        return settingsManager.isShowDaysOfWeek();
+        return settingsManager.appearanceModel.getShowDaysOfWeek();
     }
 
     @Override
     public boolean isShowDaysOfWeekTitle() {
-        return settingsManager.isShowDaysOfWeekTitle();
+        return settingsManager.appearanceModel.getShowDaysOfWeekTitle();
     }
 
     @Override
     public void setCalendarBackgroundColor(int calendarBackgroundColor) {
-        settingsManager.setCalendarBackgroundColor(calendarBackgroundColor);
+        settingsManager.appearanceModel.setCalendarBackgroundColor(calendarBackgroundColor);
         setBackgroundColor(calendarBackgroundColor);
     }
 
     @Override
     public void setMonthTextColor(int monthTextColor) {
-        settingsManager.setMonthTextColor(monthTextColor);
+        settingsManager.appearanceModel.setMonthTextColor(monthTextColor);
         update();
     }
 
     @Override
     public void setOtherDayTextColor(int otherDayTextColor) {
-        settingsManager.setOtherDayTextColor(otherDayTextColor);
+        settingsManager.appearanceModel.setOtherDayTextColor(otherDayTextColor);
         update();
     }
 
     @Override
     public void setDayTextColor(int dayTextColor) {
-        settingsManager.setDayTextColor(dayTextColor);
+        settingsManager.appearanceModel.setDayTextColor(dayTextColor);
         update();
     }
 
     @Override
     public void setWeekendDayTextColor(int weekendDayTextColor) {
-        settingsManager.setWeekendDayTextColor(weekendDayTextColor);
+        settingsManager.appearanceModel.setWeekendDayTextColor(weekendDayTextColor);
         update();
     }
 
     @Override
     public void setWeekDayTitleTextColor(int weekDayTitleTextColor) {
-        settingsManager.setWeekDayTitleTextColor(weekDayTitleTextColor);
+        settingsManager.appearanceModel.setWeekDayTitleTextColor(weekDayTitleTextColor);
         for (int i = 0; i < llDaysOfWeekTitles.getChildCount(); i++) {
             ((SquareTextView) llDaysOfWeekTitles.getChildAt(i)).setTextColor(weekDayTitleTextColor);
         }
@@ -899,50 +900,50 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
 
     @Override
     public void setSelectedDayTextColor(int selectedDayTextColor) {
-        settingsManager.setSelectedDayTextColor(selectedDayTextColor);
+        settingsManager.appearanceModel.setSelectedDayTextColor(selectedDayTextColor);
         update();
     }
 
     @Override
     public void setSelectedDayBackgroundColor(int selectedDayBackgroundColor) {
-        settingsManager.setSelectedDayBackgroundColor(selectedDayBackgroundColor);
+        settingsManager.appearanceModel.setSelectedDayBackgroundColor(selectedDayBackgroundColor);
         update();
     }
 
     @Override
     public void setSelectedDayBackgroundStartColor(int selectedDayBackgroundStartColor) {
-        settingsManager.setSelectedDayBackgroundStartColor(selectedDayBackgroundStartColor);
+        settingsManager.appearanceModel.setSelectedDayBackgroundStartColor(selectedDayBackgroundStartColor);
         update();
     }
 
     @Override
     public void setSelectedDayBackgroundEndColor(int selectedDayBackgroundEndColor) {
-        settingsManager.setSelectedDayBackgroundEndColor(selectedDayBackgroundEndColor);
+        settingsManager.appearanceModel.setSelectedDayBackgroundEndColor(selectedDayBackgroundEndColor);
         update();
     }
 
     @Override
     public void setCurrentDayTextColor(int currentDayTextColor) {
-        settingsManager.setCurrentDayTextColor(currentDayTextColor);
+        settingsManager.appearanceModel.setCurrentDayTextColor(currentDayTextColor);
         update();
     }
 
     @Override
     public void setCurrentDayIconRes(int currentDayIconRes) {
-        settingsManager.setCurrentDayIconRes(currentDayIconRes);
+        settingsManager.appearanceModel.setCurrentDayIconRes(currentDayIconRes);
         update();
     }
 
     @Override
     public void setCurrentDaySelectedIconRes(int currentDaySelectedIconRes) {
-        settingsManager.setCurrentDaySelectedIconRes(currentDaySelectedIconRes);
+        settingsManager.appearanceModel.setCurrentDaySelectedIconRes(currentDaySelectedIconRes);
         update();
     }
 
     @Override
     public void setCalendarOrientation(int calendarOrientation) {
         clearSelections();
-        settingsManager.setCalendarOrientation(calendarOrientation);
+        settingsManager.appearanceModel.setCalendarOrientation(calendarOrientation);
         setDaysOfWeekTitles();
         recreateInitialMonth();
 
@@ -968,55 +969,55 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
 
     @Override
     public void setConnectedDayIconRes(int connectedDayIconRes) {
-        settingsManager.setConnectedDayIconRes(connectedDayIconRes);
+        settingsManager.appearanceModel.setConnectedDayIconRes(connectedDayIconRes);
         update();
     }
 
     @Override
     public void setConnectedDaySelectedIconRes(int connectedDaySelectedIconRes) {
-        settingsManager.setConnectedDaySelectedIconRes(connectedDaySelectedIconRes);
+        settingsManager.appearanceModel.setConnectedDaySelectedIconRes(connectedDaySelectedIconRes);
         update();
     }
 
     @Override
     public void setConnectedDayIconPosition(int connectedDayIconPosition) {
-        settingsManager.setConnectedDayIconPosition(connectedDayIconPosition);
+        settingsManager.appearanceModel.setConnectedDayIconPosition(connectedDayIconPosition);
         update();
     }
 
     @Override
     public void setDisabledDayTextColor(int disabledDayTextColor) {
-        settingsManager.setDisabledDayTextColor(disabledDayTextColor);
+        settingsManager.appearanceModel.setDisabledDayTextColor(disabledDayTextColor);
         update();
     }
 
     @Override
     public void setSelectionBarMonthTextColor(int selectionBarMonthTextColor) {
-        settingsManager.setSelectionBarMonthTextColor(selectionBarMonthTextColor);
+        settingsManager.appearanceModel.setSelectionBarMonthTextColor(selectionBarMonthTextColor);
         update();
     }
 
     @Override
     public void setPreviousMonthIconRes(int previousMonthIconRes) {
-        settingsManager.setPreviousMonthIconRes(previousMonthIconRes);
+        settingsManager.appearanceModel.setPreviousMonthIconRes(previousMonthIconRes);
         setPreviousNavigationButton();
     }
 
     @Override
     public void setNextMonthIconRes(int nextMonthIconRes) {
-        settingsManager.setNextMonthIconRes(nextMonthIconRes);
+        settingsManager.appearanceModel.setNextMonthIconRes(nextMonthIconRes);
         setNextNavigationButton();
     }
 
     @Override
     public void setShowDaysOfWeek(boolean showDaysOfWeek) {
-        settingsManager.setShowDaysOfWeek(showDaysOfWeek);
+        settingsManager.appearanceModel.setShowDaysOfWeek(showDaysOfWeek);
         recreateInitialMonth();
     }
 
     @Override
     public void setShowDaysOfWeekTitle(boolean showDaysOfWeekTitle) {
-        settingsManager.setShowDaysOfWeekTitle(showDaysOfWeekTitle);
+        settingsManager.appearanceModel.setShowDaysOfWeekTitle(showDaysOfWeekTitle);
         if (showDaysOfWeekTitle) {
             showDaysOfWeekTitle();
         } else {
@@ -1043,10 +1044,10 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
     private void changeSnapHelper() {
         rvMonths.setOnFlingListener(null);
         if (snapHelper == null) {
-            snapHelper = new GravitySnapHelper(settingsManager.getCalendarOrientation() == LinearLayoutManager.VERTICAL ? Gravity.TOP : Gravity.START, true, this);
+            snapHelper = new GravitySnapHelper(settingsManager.appearanceModel.getCalendarOrientation() == LinearLayoutManager.VERTICAL ? Gravity.TOP : Gravity.START, true, this);
             snapHelper.attachToRecyclerView(rvMonths);
         } else {
-            snapHelper.setGravity(settingsManager.getCalendarOrientation() == LinearLayoutManager.VERTICAL ? Gravity.TOP : Gravity.START);
+            snapHelper.setGravity(settingsManager.appearanceModel.getCalendarOrientation() == LinearLayoutManager.VERTICAL ? Gravity.TOP : Gravity.START);
         }
     }
 
@@ -1061,16 +1062,16 @@ public class CalendarView extends RelativeLayout implements OnDaySelectedListene
         }
     }
 
-    public void setOnMonthChangeListener(OnMonthChangeListener onMonthChangeListener){
+    public void setOnMonthChangeListener(OnMonthChangeListener onMonthChangeListener) {
         this.onMonthChangeListener = onMonthChangeListener;
     }
 
     @Override
     public void onSnap(int position) {
         Month month = monthAdapter.getData().get(position);
-        if(onMonthChangeListener != null
+        if (onMonthChangeListener != null
                 && (previousSelectedMonth == null || !previousSelectedMonth.getMonthName().equals(month.getMonthName()))) {
-                onMonthChangeListener.onMonthChanged(month);
+            onMonthChangeListener.onMonthChanged(month);
             previousSelectedMonth = month;
         }
     }
