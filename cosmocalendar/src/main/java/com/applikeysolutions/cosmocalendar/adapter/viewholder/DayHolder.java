@@ -3,23 +3,29 @@ package com.applikeysolutions.cosmocalendar.adapter.viewholder;
 import android.content.res.Resources;
 import android.view.View;
 
-import com.applikeysolutions.cosmocalendar.settings.appearance.ConnectedDayIconPosition;
-import com.applikeysolutions.cosmocalendar.utils.CalendarUtils;
-import com.applikeysolutions.customizablecalendar.R;
 import com.applikeysolutions.cosmocalendar.model.Day;
 import com.applikeysolutions.cosmocalendar.selection.BaseSelectionManager;
 import com.applikeysolutions.cosmocalendar.selection.RangeSelectionManager;
 import com.applikeysolutions.cosmocalendar.selection.SelectionState;
+import com.applikeysolutions.cosmocalendar.settings.SettingsManager;
+import com.applikeysolutions.cosmocalendar.settings.appearance.AppearanceModel;
+import com.applikeysolutions.cosmocalendar.settings.appearance.ConnectedDayIconPosition;
+import com.applikeysolutions.cosmocalendar.utils.CalendarUtils;
 import com.applikeysolutions.cosmocalendar.view.CalendarView;
 import com.applikeysolutions.cosmocalendar.view.customviews.CircleAnimationTextView;
+import com.applikeysolutions.customizablecalendar.R;
 
 public class DayHolder extends BaseDayHolder {
 
+    private final SettingsManager settingsManager;
+    private final AppearanceModel appearanceModel;
     private CircleAnimationTextView ctvDay;
     private BaseSelectionManager selectionManager;
 
     public DayHolder(View itemView, CalendarView calendarView) {
         super(itemView, calendarView);
+        settingsManager = calendarView.getSettingsManager();
+        appearanceModel = settingsManager.appearanceModel;
         ctvDay = (CircleAnimationTextView) itemView.findViewById(R.id.tv_day_number);
     }
 
@@ -38,19 +44,19 @@ public class DayHolder extends BaseDayHolder {
             addCurrentDayIcon(isSelected);
         }
 
-        if(day.isDisabled()){
-            ctvDay.setTextColor(calendarView.getDisabledDayTextColor());
+        if (day.isDisabled()) {
+            settingsManager.applyAppearance(ctvDay, appearanceModel.getDisabledDayText());
         }
     }
 
-    private void addCurrentDayIcon(boolean isSelected){
+    private void addCurrentDayIcon(boolean isSelected) {
         ctvDay.setCompoundDrawablePadding(getPadding(getCurrentDayIconHeight(isSelected)) * -1);
         ctvDay.setCompoundDrawablesWithIntrinsicBounds(0, isSelected
                 ? calendarView.getCurrentDaySelectedIconRes()
                 : calendarView.getCurrentDayIconRes(), 0, 0);
     }
 
-    private int getCurrentDayIconHeight(boolean isSelected){
+    private int getCurrentDayIconHeight(boolean isSelected) {
         if (isSelected) {
             return CalendarUtils.getIconHeight(calendarView.getContext().getResources(), calendarView.getCurrentDaySelectedIconRes());
         } else {
@@ -58,7 +64,7 @@ public class DayHolder extends BaseDayHolder {
         }
     }
 
-    private int getConnectedDayIconHeight(boolean isSelected){
+    private int getConnectedDayIconHeight(boolean isSelected) {
         if (isSelected) {
             return CalendarUtils.getIconHeight(calendarView.getContext().getResources(), calendarView.getConnectedDaySelectedIconRes());
         } else {
@@ -68,14 +74,14 @@ public class DayHolder extends BaseDayHolder {
 
     private void select(Day day) {
         if (day.isFromConnectedCalendar()) {
-            if(day.isDisabled()){
+            if (day.isDisabled()) {
                 ctvDay.setTextColor(day.getConnectedDaysDisabledTextColor());
             } else {
                 ctvDay.setTextColor(day.getConnectedDaysSelectedTextColor());
             }
             addConnectedDayIcon(true);
         } else {
-            ctvDay.setTextColor(calendarView.getSelectedDayTextColor());
+            settingsManager.applyAppearance(ctvDay, appearanceModel.getSelectedDayText());
             ctvDay.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
         }
 
@@ -88,10 +94,10 @@ public class DayHolder extends BaseDayHolder {
         animateDay(state, day);
     }
 
-    private void addConnectedDayIcon(boolean isSelected){
+    private void addConnectedDayIcon(boolean isSelected) {
         ctvDay.setCompoundDrawablePadding(getPadding(getConnectedDayIconHeight(isSelected)) * -1);
 
-        switch (calendarView.getConnectedDayIconPosition()){
+        switch (calendarView.getConnectedDayIconPosition()) {
             case ConnectedDayIconPosition.TOP:
                 ctvDay.setCompoundDrawablesWithIntrinsicBounds(0, isSelected
                         ? calendarView.getConnectedDaySelectedIconRes()
@@ -161,25 +167,27 @@ public class DayHolder extends BaseDayHolder {
     private void unselect(Day day) {
         int textColor;
         if (day.isFromConnectedCalendar()) {
-            if(day.isDisabled()){
+            if (day.isDisabled()) {
                 textColor = day.getConnectedDaysDisabledTextColor();
             } else {
                 textColor = day.getConnectedDaysTextColor();
             }
             addConnectedDayIcon(false);
+            ctvDay.setTextColor(textColor);
         } else if (day.isWeekend()) {
             textColor = calendarView.getWeekendDayTextColor();
             ctvDay.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
+            ctvDay.setTextColor(textColor);
         } else {
-            textColor = calendarView.getDayTextColor();
+            settingsManager.applyAppearance(ctvDay, appearanceModel.getDayText());
             ctvDay.setCompoundDrawablesWithIntrinsicBounds(0, 0, 0, 0);
         }
         day.setSelectionCircleDrawed(false);
-        ctvDay.setTextColor(textColor);
+
         ctvDay.clearView();
     }
 
-    private int getPadding(int iconHeight){
+    private int getPadding(int iconHeight) {
         return (int) (iconHeight * Resources.getSystem().getDisplayMetrics().density);
     }
 }
